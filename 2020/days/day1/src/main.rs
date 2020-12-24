@@ -15,7 +15,7 @@ fn resolve(input: &HashSet<i32>, nb_entries: i32, sum: i32) -> Option<i32> {
 fn main() -> Result<(), Box<dyn Error>> {
     let input = include_str!("../../../inputs/day1")
         .lines()
-        .map(|l| l.parse::<i32>())
+        .map(str::parse)
         .collect::<Result<HashSet<_>, _>>()?;
 
     dbg!(resolve(&input, 2, 2020));
