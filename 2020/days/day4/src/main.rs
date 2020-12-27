@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use std::collections::HashMap;
 
 fn main() {
@@ -5,7 +6,13 @@ fn main() {
 
     let identities = file
         .lines()
-        .hold_until(|s| s.is_empty())
+        .batching(|iter| {
+            let res = iter.take_while(|v| !str::is_empty(v)).collect::<Vec<_>>();
+            if !res.is_empty() {
+                return Some(res);
+            }
+            None
+        })
         .map(|identity| {
             identity
                 .into_iter()
@@ -77,68 +84,4 @@ fn main() {
         .count();
 
     dbg!(s2);
-}
-
-// -----------------------------------------------------------------------------
-
-struct HoldUntil<I, T, F> {
-    iter: I,
-    f: F,
-    hold_until: Vec<T>,
-}
-
-impl<I, F> Iterator for HoldUntil<I, I::Item, F>
-where
-    I: Iterator,
-    F: Fn(&I::Item) -> bool,
-{
-    type Item = Vec<I::Item>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        loop {
-            match self.iter.next().map(|v| {
-                let cond = (self.f)(&v);
-                (v, cond)
-            }) {
-                Some((_, cond)) if cond => {
-                    return Some(self.hold_until.split_off(0));
-                }
-                Some((v, cond)) if !cond => self.hold_until.push(v),
-                None => {
-                    let vec = self.hold_until.split_off(0);
-
-                    if !vec.is_empty() {
-                        return Some(vec);
-                    } else {
-                        return None;
-                    }
-                }
-                Some(_) => unreachable!(), // ???
-            }
-        }
-    }
-}
-
-trait HoldUntilIterator<T> {
-    fn hold_until<F>(self, f: F) -> HoldUntil<Self, T, F>
-    where
-        F: Fn(&T) -> bool,
-        Self: Sized;
-}
-
-impl<I, T> HoldUntilIterator<T> for I
-where
-    I: Iterator<Item = T>,
-{
-    fn hold_until<F>(self, f: F) -> HoldUntil<Self, T, F>
-    where
-        F: Fn(&T) -> bool,
-        Self: Sized,
-    {
-        HoldUntil {
-            iter: self,
-            f,
-            hold_until: vec![],
-        }
-    }
 }
