@@ -1,3 +1,5 @@
+#![feature(str_split_once)]
+
 use itertools::Itertools;
 use std::collections::HashMap;
 
@@ -6,22 +8,16 @@ fn main() {
 
     let identities = file
         .lines()
-        .batching(|iter| {
-            let res = iter.take_while(|v| !str::is_empty(v)).collect::<Vec<_>>();
-            if !res.is_empty() {
-                return Some(res);
-            }
-            None
-        })
+        .group_by(|line| line.is_empty())
+        .into_iter()
+        .filter(|(cond, _)| !*cond)
+        .map(|(_, identity)| identity)
         .map(|identity| {
             identity
                 .into_iter()
                 .map(|l| l.split(' '))
                 .flatten()
-                .map(|v| {
-                    let mut split = v.split(':');
-                    (split.next().unwrap(), split.next().unwrap())
-                })
+                .filter_map(|v| v.split_once(':'))
                 .map(|(k, v)| {
                     let valid = match k {
                         "byr" => (1920..=2002).contains(&v.parse::<i32>().unwrap_or(0)),
