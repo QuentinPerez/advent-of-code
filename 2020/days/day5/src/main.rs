@@ -4,10 +4,9 @@ use std::ops::Range;
 
 fn main() {
     let res = {
-        let mut res = include_str!("../../../inputs/day5")
-            .lines()
-            .map(str::as_bytes)
-            .map(|chars| chars.split_at(7))
+        let mut res = include_bytes!("../../../inputs/day5")
+            .chunks(11)
+            .map(|line| line[..10].split_at(7))
             .map(|(r, l)| {
                 r.iter().fold(0..127, split_range).start * 8
                     + l.iter().fold(0..7, split_range).start
@@ -25,11 +24,11 @@ fn main() {
 }
 
 fn split_range(range: Range<i32>, v: &u8) -> Range<i32> {
-    const BACK: u8 = 'B' as u8;
-    const FRONT: u8 = 'F' as u8;
+    const BACK: u8 = b'B';
+    const FRONT: u8 = b'F';
 
-    const RIGHT: u8 = 'R' as u8;
-    const LEFT: u8 = 'L' as u8;
+    const RIGHT: u8 = b'R';
+    const LEFT: u8 = b'L';
 
     let delta = (range.end - range.start) / 2;
     match *v {
