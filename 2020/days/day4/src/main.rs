@@ -1,5 +1,3 @@
-#![feature(str_split_once)]
-
 use itertools::Itertools;
 use std::collections::HashMap;
 
