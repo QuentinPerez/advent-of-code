@@ -1,3 +1,5 @@
+#![feature(array_windows)]
+
 type AnyError = Box<dyn std::error::Error>;
 
 fn main() -> Result<(), AnyError> {
@@ -6,22 +8,16 @@ fn main() -> Result<(), AnyError> {
         .map(str::parse)
         .collect::<Result<Vec<u32>, _>>()?;
 
-    let count = input
-        .windows(2)
-        .filter(|values| values[0] < values[1])
-        .count();
+    let count = input.array_windows().filter(|[r, l]| r < l).count();
 
     dbg!(count);
 
     let input = input
-        .windows(3)
-        .map(|values| values.iter().sum())
+        .array_windows()
+        .map(|arr: &[u32; 3]| arr.iter().sum())
         .collect::<Vec<u32>>();
 
-    let count = input
-        .windows(2)
-        .filter(|values| values[0] < values[1])
-        .count();
+    let count = input.array_windows().filter(|[r, l]| r < l).count();
 
     dbg!(count);
     Ok(())
