@@ -1,5 +1,3 @@
-#![feature(iter_partition_in_place)]
-
 use std::cmp::Ordering;
 
 type AnyError = Box<dyn std::error::Error>;
